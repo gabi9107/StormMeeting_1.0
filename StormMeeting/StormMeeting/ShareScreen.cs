@@ -14,7 +14,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.IO.Compression;
-
+using MessageDll;
 
 namespace StormMeeting
 {
@@ -26,7 +26,7 @@ namespace StormMeeting
 
         public ShareScreen(bool isPresenter)
         {
-            IPAddress adress = IPAddress.Parse("127.0.0.1");
+            IPAddress adress = IPAddress.Parse("192.168.0.112");
             IPEndPoint ipEnd = new IPEndPoint(adress, 5000);
             m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -68,9 +68,11 @@ namespace StormMeeting
                 byte[] pngBytes =(byte[])formatter.Deserialize(m_networkStream);
                 using (MemoryStream ms = new MemoryStream(Compressor.Decompress(pngBytes)))
                 {
-                    Image image = Image.FromStream(ms);
-                    ImmageReceivedEventArgs messageArgs = new ImmageReceivedEventArgs(image);
-                    OnImmageReceived(messageArgs);
+                     Image image = Image.FromStream(ms);
+                    
+                        ClientImageReceivedEventArgs messageArgs = new ClientImageReceivedEventArgs(image);
+                        OnImmageReceived(messageArgs);
+
                 }
              }
         }
@@ -83,7 +85,7 @@ namespace StormMeeting
 
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    printscreen.Save(ms, ImageFormat.Jpeg);
+                    printscreen.Save(ms, ImageFormat.Png);
 
                     byte[] bytes = ms.ToArray();
 

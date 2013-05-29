@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using MessageDll;
 
 namespace StormMeetingServer
 {
@@ -99,30 +98,44 @@ namespace StormMeetingServer
         
         private void StartReceive()
         {
-            try
-            {
-                while (m_socket.Connected)
-                {
-                    //Bitmap buffer = (Bitmap)formatter.Deserialize(m_networkStream);
-                    Message msg = (Message)formatter.Deserialize(m_networkStream);
-                    switch (msg.CmdType)
-                    {
-                        case CommandType.ClientLogin:
-                            ClientLoginEventArgs client = new ClientLoginEventArgs(msg.MessageText);
-                            m_clientName = msg.MessageText;
-                            ClientLogin(this, client);
-                            break;
-                        case CommandType.Message:
-                                MessageReceivedEventArgs messageArgs = new MessageReceivedEventArgs(msg);
-                                OnMessageReceived(messageArgs);
-                            break;
 
-                    }
-                }
-            }
-            catch (Exception e)
+            while (m_socket.Connected)
             {
-                
+                //Bitmap buffer = (Bitmap)formatter.Deserialize(m_networkStream);
+                byte[] buffer = (byte[])formatter.Deserialize(m_networkStream);
+                Byte[] buffer = new Byte[4];
+                m_socket.Receive(buffer);
+
+                int size = BitConverter.ToInt32(buffer, 0);
+                buffer = new Byte[size];
+                m_socket.Receive(buffer);
+
+                ms = new MemoryStream(buffer);
+                MessageReceivedEventArgs messageArgs;
+
+                //Read the command's Type.
+                CommandType cmdType = (CommandType)(ReadNumber(4));
+                switch (cmdType)
+                {
+                    case CommandType.ClientLogin:
+                        //Read ClientName size
+                        size = ReadNumber(4);
+
+                        //Read ClientName
+                        m_clientName = ReadString(size);
+                        ClientLogin(this, EventArgs.Empty);
+                        break;
+                    case CommandType.Message:
+                        //Read message type.
+                        MessageType msgType = (MessageType)(ReadNumber(4));
+                        if (msgType == MessageType.Broadcast)
+                        {
+                            messageArgs = new MessageReceivedEventArgs(msgType, BitConverter.GetBytes(size).Concat(buffer).ToArray());
+                            OnMessageReceived(messageArgs);
+                        }
+                        break;
+                   
+                }
             }
         }
 

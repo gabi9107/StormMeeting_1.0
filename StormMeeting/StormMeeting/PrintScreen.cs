@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MessageDll;
 
 namespace StormMeeting
 {
@@ -26,14 +27,14 @@ namespace StormMeeting
         }
         private void ImmageReceived(object sender, EventArgs e)
         {
-            ImmageReceivedEventArgs ea = (ImmageReceivedEventArgs)e;
+            ClientImageReceivedEventArgs ea = (ClientImageReceivedEventArgs)e;
             //ea.Image.SetResolution(this.Size.Width, this.Size.Height);
 
-                if (screen.InvokeRequired)
-                    screen.Invoke(new MethodInvoker(delegate { screen.Image = ea.Image; }));
-                else
-                    screen.Image = ea.Image;
-                first = false;
+            if (screen.InvokeRequired)
+                screen.Invoke(new MethodInvoker(delegate { screen.Image = ea.Image; }));
+            else
+                screen.Image = ea.Image;
+            first = false;
 
 
         }

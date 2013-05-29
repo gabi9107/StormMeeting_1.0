@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MessageDll;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -9,16 +10,15 @@ namespace StormMeeting
 {
     class MessageReceivedEventArgs : EventArgs
     {
-       
-        private string m_message;
+        private Message m_message;
 
-        public string Message
+        public Message Message
         {
             get { return m_message; }
             set { m_message = value; }
         }
 
-        public MessageReceivedEventArgs(string message)
+        public MessageReceivedEventArgs(Message message)
         {
             m_message = message;
         }

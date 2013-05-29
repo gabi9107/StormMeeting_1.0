@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MessageDll;
 
 namespace StormMeeting
 {
@@ -31,11 +32,11 @@ namespace StormMeeting
 
         private void MessageReceived(object sender, EventArgs e)
         {
-            MessageReceivedEventArgs messageArgs = (MessageReceivedEventArgs)e;
+            MessageDll.Message msg = ((MessageReceivedEventArgs)e).Message;
 
             if (ReceivedMessageBox.InvokeRequired)
             {
-                ReceivedMessageBox.Invoke(new MethodInvoker(delegate { ReceivedMessageBox.Text += messageArgs.Message; }));
+                ReceivedMessageBox.Invoke(new MethodInvoker(delegate { ReceivedMessageBox.Text += msg.MessageText; }));
             }
     
         }

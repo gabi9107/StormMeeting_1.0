@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MessageDll;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Imaging;
@@ -41,7 +42,7 @@ namespace StormMeetingServer
             m_clients = new List<Client>();
 
             m_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPAddress adress = IPAddress.Parse("127.0.0.1");
+            IPAddress adress = IPAddress.Any;
             IPEndPoint iep = new IPEndPoint(adress, 4000);
             EndPoint ep = (EndPoint)iep;
             m_serverSocket.Bind(iep);
@@ -104,11 +105,11 @@ namespace StormMeetingServer
 
         }
 
-        private void BroadcastMessage(byte[] message)
+        private void BroadcastMessage(Message message)
         {
             foreach (Client client in Clients)
             {
-                client.NetworkStream.Write(message, 0, message.Length);
+                formatter.Serialize(client.NetworkStream, message);
             }
         }
 
@@ -116,14 +117,14 @@ namespace StormMeetingServer
 
         private void ClientLogin(object sender, EventArgs e)
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
 
         private void MessageReceived(object sender, EventArgs e)
         {
-            MessageReceivedEventArgs messageArgs = (MessageReceivedEventArgs)e;
-           // if (messageArgs.Type == MessageType.Broadcast)
-                BroadcastMessage(messageArgs.MessageBytes);
+            Message message = ((MessageReceivedEventArgs)e).Message;
+            if (message.MsgType == MessageType.Broadcast)
+                BroadcastMessage(message);
         }
 
         private void ImageReceived(object sender, EventArgs e)
@@ -133,9 +134,6 @@ namespace StormMeetingServer
             //daca va fi necesar se va implemnta paralel
             foreach (ShareScreenClient client in ShareScreenClients)
             {
-                //if (client.IsPresenter)
-                //    continue;
-                
                 client.Write(imageArgs.Bytes);
 
                 //formatter.Serialize(client.NetworkStream, imageArgs.Image);

@@ -12,11 +12,13 @@ using System.Threading;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Net;
+using MessageDll;
 
 namespace StormMeetingServer
 {
     class ShareScreenClient
     {
+#region members
         private NetworkStream m_networkStream;
         private BinaryReader br;
         private BinaryWriter bw;
@@ -48,6 +50,7 @@ namespace StormMeetingServer
                     return IPAddress.None;
             }
         }
+        #endregion
         public ShareScreenClient(Socket socket, bool isPresenter)
         {
             m_isPresenter = isPresenter;
